@@ -1,4 +1,4 @@
-from LinearActuator import LinearActuator
+from testbed_lin_actuator import LinearActuator
 import numpy as np
 import time
 
@@ -10,7 +10,7 @@ import argparse
 class LinearActuatorServer:
     def __init__(self, port):
         self.la = LinearActuator(port)
-        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
+        self.pub = rospy.Publisher('/linear_actuator_joint_states', JointState, queue_size=10)
         self.reset_sub = rospy.Subscriber('/reset', Empty, self.reset_callback)
         self.stop_sub = rospy.Subscriber('/stop', Bool, self.stop_callback)
         self.toggle_sub = rospy.Subscriber('/toggle', Int16, self.toggle_callback)
