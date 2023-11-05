@@ -1,4 +1,4 @@
-from testbed_lin_actuator import LinearActuator
+from testbed_lin_actuator.LinearActuator import LinearActuator
 import numpy as np
 import time
 
@@ -49,14 +49,14 @@ class LinearActuatorServer:
         
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--port', '-p', default='/dev/ttyACM0')
-    args = parser.parse_args()
+    #parser = argparse.ArgumentParser()
+    #parser.add_argument('--port', '-p', default='/dev/ttyACM0')
+    #args = parser.parse_args()
 
     rospy.init_node('lin_actuator_server', anonymous=True)
     rate = rospy.Rate(100) # 10hz
 
-    las = LinearActuatorServer(args.port)
+    las = LinearActuatorServer('/dev/ttyACM0')
 
     while not rospy.is_shutdown():
         las.publish_joint_state_msg()
