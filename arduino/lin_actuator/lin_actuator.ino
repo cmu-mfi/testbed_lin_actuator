@@ -1,10 +1,12 @@
+#define NUM_MOTORS 4
+
 // ARDUINO MEGA PIN LAYOUT DEFINES
 //#define 0
 //#define 1
 #define Motor1En 2 // PWM Pin
 #define Motor2En 3 // PWM Pin
-// #define Motor3En 4 // PWM Pin
-// #define Motor4En 5 // PWM Pin
+#define Motor3En 4 // PWM Pin
+#define Motor4En 5 // PWM Pin
 // #define Motor5En 6 // PWM Pin
 // #define Motor6En 7 // PWM Pin
 // #define Motor7En 8 // PWM Pin
@@ -33,10 +35,10 @@
 #define Motor1In2 31
 #define Motor2In1 32
 #define Motor2In2 33
-// #define Motor3In1 34 
-// #define Motor3In2 35
-// #define Motor4In1 36
-// #define Motor4In2 37
+#define Motor3In1 34 
+#define Motor3In2 35
+#define Motor4In1 36
+#define Motor4In2 37
 // #define Motor5In1 38
 // #define Motor5In2 39
 // #define Motor6In1 40
@@ -56,8 +58,8 @@
 
 #define Motor1A A1 // Analog Pin
 #define Motor2A A2 // Analog Pin
-// #define Motor3A A3 // Analog Pin
-// #define Motor4A A4 // Analog Pin
+#define Motor3A A3 // Analog Pin
+#define Motor4A A4 // Analog Pin
 // #define Motor5A A5 // Analog Pin
 // #define Motor6A A6 // Analog Pin
 // #define Motor7A A7 // Analog Pin
@@ -70,18 +72,18 @@
 // Calculate based on max input size expected for one command
 #define MAX_INPUT_SIZE 900
 
-float last_joint_positions[2] = {0.0, 0.0};
-float joint_positions[2] = {0.0, 0.0};
-float joint_velocities[2] = {0.0, 0.0};
-int motor_val[2] = {0, 0};
+float last_joint_positions[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
+float joint_positions[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
+float joint_velocities[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
+int motor_val[NUM_MOTORS] = {0, 0, 0, 0};
 
-int motor_en[2] = {Motor1En, Motor2En};
+int motor_en[NUM_MOTORS] = {Motor1En, Motor2En, Motor3En, Motor4En};
 
-int motor_in1[2] = {Motor1In1, Motor2In1};
+int motor_in1[NUM_MOTORS] = {Motor1In1, Motor2In1, Motor3In1, Motor4In1};
 
-int motor_in2[2] = {Motor1In2, Motor2In2};
+int motor_in2[NUM_MOTORS] = {Motor1In2, Motor2In2, Motor3In2, Motor4In2};
 
-int motor_a[2] = {Motor1A, Motor2A};
+int motor_a[NUM_MOTORS] = {Motor1A, Motor2A, Motor3A, Motor4A};
 
 // STOP COMMAND
 // Stop Command Globals
@@ -99,7 +101,7 @@ void stop(bool stop_msg){
     stop_flag = true;
 
     // Turn off motors
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       analogWrite(motor_en[i], 0);
       digitalWrite(motor_in1[i], LOW);
@@ -114,8 +116,8 @@ void stop(bool stop_msg){
 }
 
 // Desired Motor Positions and Velocities (hard cap of 10 trajectory points)
-float desired_joint_positions[10][2];
-float desired_joint_velocities[10][2];
+float desired_joint_positions[10][NUM_MOTORS];
+float desired_joint_velocities[10][NUM_MOTORS];
 float durations[10];
 float last_time = 0.0;
 int num_trajectory_points = 0;
@@ -177,7 +179,7 @@ void positionTrajectory()
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     durations[i] = atof(strtokIndx);
     received += String(durations[i]) + " ";
-    for(int j = 0; j < 2; j++)
+    for(int j = 0; j < NUM_MOTORS; j++)
     {
       strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
       desired_joint_positions[i][j] = atof(strtokIndx);
@@ -207,7 +209,7 @@ void velocityTrajectory()
   {
     strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
     durations[i] = atof(strtokIndx);
-    for(int j = 0; j < 2; j++)
+    for(int j = 0; j < NUM_MOTORS; j++)
     {
       strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
       desired_joint_velocities[i][j] = atof(strtokIndx);
@@ -219,7 +221,7 @@ void velocityTrajectory()
   last_time = 0.0;
 }
 
-float max_motor_speed[2] = {0.025, 0.025};
+float max_motor_speed[NUM_MOTORS] = {0.025, 0.025, 0.025, 0.025};
 
 // RESET COMMAND
 // Reset Command Callback
@@ -228,7 +230,7 @@ void resetJoints(){
 
   num_trajectory_points = 1;
   durations[0] = 4.0;
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     desired_joint_positions[0][i] = 0.0;
   }
@@ -248,7 +250,7 @@ String joint_states;
 void setup()
 { 
   // set all the base dc motor control pins to outputs
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     pinMode(motor_en[i], OUTPUT);
     pinMode(motor_in1[i], OUTPUT);
@@ -257,7 +259,7 @@ void setup()
   }
 
   // disable dc motors by setting their enable lines to low
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     analogWrite(motor_en[i], 0);
     digitalWrite(motor_in1[i], LOW);
@@ -273,7 +275,7 @@ void setup()
 
 void updateJointPositions()
 {
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     motor_val[i] = analogRead(motor_a[i]);
     joint_positions[i] = motor_val[i] * 0.00000978; // 10mm / 1023
@@ -343,7 +345,7 @@ void loop()
   }
   
   if (sampleTime == 0) {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       last_joint_positions[i] = joint_positions[i];
     }
@@ -352,7 +354,7 @@ void loop()
     current_arduino_time = millis();
     time_elapsed = float(current_arduino_time - last_arduino_time) / 1000.0;
     last_time += time_elapsed;
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       joint_velocities[i] = (joint_positions[i] - last_joint_positions[i]) / time_elapsed;
     }
@@ -368,14 +370,14 @@ float position_threshold = 0.00015;
 float p = 90.0;
 float i_pid = 0.25;
 float d = 0.5;
-float last_joint_errors[2] = {0.0, 0.0};
-float joint_errors[2] = {0.0, 0.0};
-float total_joint_errors[2] = {0.0, 0.0};
+float last_joint_errors[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
+float joint_errors[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
+float total_joint_errors[NUM_MOTORS] = {0.0, 0.0, 0.0, 0.0};
 
 void moveLinearActuatorPosition()
 {
   bool reached_point = true;
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     joint_errors[i] = joint_positions[i] - desired_joint_positions[current_trajectory_point][i];
     if(fabs(joint_errors[i]) > position_threshold)
@@ -386,7 +388,7 @@ void moveLinearActuatorPosition()
   if(reached_point)
   {
     current_trajectory_point += 1;
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       total_joint_errors[i] = 0.0;
     }
@@ -396,7 +398,7 @@ void moveLinearActuatorPosition()
 
   if(current_trajectory_point < num_trajectory_points)
   {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       if(joint_errors[i] > position_threshold)
       {
@@ -434,7 +436,7 @@ void moveLinearActuatorPosition()
   }
   else
   {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       analogWrite(motor_en[i], 0);
       digitalWrite(motor_in1[i], LOW);
@@ -453,7 +455,7 @@ void moveLinearActuatorVelocity()
   } 
   if(current_trajectory_point < num_trajectory_points)
   {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       joint_velocities[i] = desired_joint_velocities[current_trajectory_point][i];
       if(joint_velocities[i] < 0.0)
@@ -480,7 +482,7 @@ void moveLinearActuatorVelocity()
   }
   else
   {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < NUM_MOTORS; i++)
     {
       analogWrite(motor_en[i], 0);
       digitalWrite(motor_in1[i], LOW);
@@ -498,7 +500,7 @@ void publishJointStates()
 {
   joint_states = "j,";
 
-  for(int i = 0; i < 2; i++)
+  for(int i = 0; i < NUM_MOTORS; i++)
   {
     joint_states += String(joint_positions[i],4) + "," + String(joint_velocities[i],4) + ",";
   }

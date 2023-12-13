@@ -10,11 +10,11 @@ class LinearActuator:
 
         self.ser = serial.Serial(port, 57600)  # open serial port
 
-        self.current_joint_positions = [0.0, 0.0]
-        self.current_joint_velocities = [0.0, 0.0]
+        self.current_joint_positions = [0.0, 0.0, 0.0, 0.0]
+        self.current_joint_velocities = [0.0, 0.0, 0.0, 0.0]
 
-        self.minimum_joint_positions = [0.003, 0.0017]
-        self.maximum_joint_positions = [0.09, 0.092]
+        self.minimum_joint_positions = [0.003, 0.0017, 0.0027, 0.0016]
+        self.maximum_joint_positions = [0.0087, 0.0089, 0.0088, 0.0084]
         self.done_moving = False
 
         time.sleep(1.0)
@@ -98,7 +98,7 @@ class LinearActuator:
                 #print(stringline)
                 if stringline[0] == 'j':
                     numbers = np.array(stringline[2:].strip().split(','))
-                    for i in range(2):
+                    for i in range(4):
                         self.current_joint_positions[i] = float(numbers[i*2])
                         self.current_joint_velocities[i] = float(numbers[i*2+1])
                     return False

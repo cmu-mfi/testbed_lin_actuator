@@ -14,10 +14,10 @@ class LinearActuatorServer:
         self.reset_sub = rospy.Subscriber('/reset', Empty, self.reset_callback)
         self.stop_sub = rospy.Subscriber('/stop', Bool, self.stop_callback)
         self.toggle_sub = rospy.Subscriber('/toggle', Int16, self.toggle_callback)
-        self.joint_names = ['lin_actuator_1', 'lin_actuator_2']
-        self.joint_states = np.zeros(2)
-        self.minimum_joint_positions = np.array([0.003, 0.0017])
-        self.maximum_joint_positions = np.array([0.09, 0.092])
+        self.joint_names = ['lin_actuator_1', 'lin_actuator_2', 'lin_actuator_3', 'lin_actuator_4']
+        self.joint_states = np.zeros(4)
+        self.minimum_joint_positions = np.array([0.003, 0.0017, 0.0027, 0.0016])
+        self.maximum_joint_positions = np.array([0.0087, 0.0089, 0.0088, 0.0084])
         self.la.reset()
         
     def reset_callback(self, msg):
@@ -32,9 +32,11 @@ class LinearActuatorServer:
     def toggle_callback(self, msg):
         self.joint_states[msg.data-1] = (self.joint_states[msg.data-1] + 1) % 2
 
-        desired_joint_positions = np.zeros(2)
+        desired_joint_positions = np.zeros(4)
         desired_joint_positions[self.joint_states == 0] = self.minimum_joint_positions[self.joint_states==0]
         desired_joint_positions[self.joint_states == 1] = self.maximum_joint_positions[self.joint_states==1]
+        desired_joint_positions[self.joint_states == 2] = self.maximum_joint_positions[self.joint_states==2]
+        desired_joint_positions[self.joint_states == 3] = self.maximum_joint_positions[self.joint_states==3]
         self.la.move_joint_position(desired_joint_positions, [1.0])
 
     def publish_joint_state_msg(self):
