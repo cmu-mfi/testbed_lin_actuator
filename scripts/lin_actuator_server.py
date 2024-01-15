@@ -16,8 +16,8 @@ class LinearActuatorServer:
         self.toggle_sub = rospy.Subscriber('/toggle', Int16, self.toggle_callback)
         self.joint_names = ['lin_actuator_1', 'lin_actuator_2', 'lin_actuator_3', 'lin_actuator_4']
         self.joint_states = np.zeros(4)
-        self.minimum_joint_positions = np.array([0.003, 0.0017, 0.0027, 0.0016])
-        self.maximum_joint_positions = np.array([0.0087, 0.0089, 0.0088, 0.0084])
+        self.minimum_joint_positions = np.array([0.0038, 0.0015, 0.0017, 0.0016])
+        self.maximum_joint_positions = np.array([0.009, 0.0089, 0.0088, 0.0084])
         self.la.reset()
         
     def reset_callback(self, msg):
